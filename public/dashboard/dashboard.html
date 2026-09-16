@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>Dashboard | DevPortefolio</title>
+
+<link rel="stylesheet" href="/css/variables.css">
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/responsive.css">
+
+
+</head>
+
+<body>
+
+<header>
+
+<nav class="navbar container">
+
+    <a href="/" class="logo">
+        DevPortefolio
+    </a>
+
+    <button
+        id="logout"
+        class="btn">
+        Logout
+    </button>
+
+</nav>
+
+</header>
+
+<main>
+
+<section class="section">
+
+<div class="container">
+
+    <h1>
+        Dashboard
+    </h1>
+
+    <p id="welcome">
+        A carregar...
+    </p>
+
+    <br>
+
+    <div id="message"
+         class="message">
+    </div>
+
+    <h2>
+        Os meus projetos
+    </h2>
+
+    <br>
+
+    <form id="project-form"
+          class="form-container">
+
+        <h2>
+            Criar projeto
+        </h2>
+
+        <br>
+
+        <div class="form-group">
+
+            <label>
+                Título
+            </label>
+
+            <input
+                id="title"
+                required>
+
+        </div>
+
+        <div class="form-group">
+
+            <label>
+                Descrição
+            </label>
+
+            <textarea
+                id="description"
+                required>
+            </textarea>
+
+        </div>
+
+        <div class="form-group">
+
+            <label>
+                Descrição completa
+            </label>
+
+            <textarea
+                id="long_description">
+            </textarea>
+
+        </div>
+
+        <div class="form-group">
+
+        <label for="github_url">
+            GitHub <span>(opcional)</span>
+        </label>
+
+        <input
+            id="github_url"
+            type="url"
+            placeholder="https://github.com/username/projeto">
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label>
+                Link online
+            </label>
+
+            <input
+                id="live_url"
+                type="url">
+
+        </div>
+
+        <div class="form-group">
+
+            <label>
+                Nível
+            </label>
+
+            <select id="level">
+
+                <option value="">
+                    Selecionar
+                </option>
+
+                <option value="Iniciante">
+                    Iniciante
+                </option>
+
+                <option value="Intermédio">
+                    Intermédio
+                </option>
+
+                <option value="Avançado">
+                    Avançado
+                </option>
+
+            </select>
+
+        </div>
+
+        <button
+            type="submit"
+            class="btn">
+            Criar projeto
+        </button>
+
+    </form>
+
+    <br>
+
+    <div
+        id="projects-container"
+        class="projects-grid">
+
+        <div class="loading">
+            A carregar...
+        </div>
+
+    </div>
+
+</div>
+
+</section>
+
+</main>
+
+<script type="module">
+
+import { apiRequest }
+    from "/js/api.js";
+
+const welcome =
+    document.querySelector("#welcome");
+
+const container =
+    document.querySelector("#projects-container");
+
+const form =
+    document.querySelector("#project-form");
+
+const message =
+    document.querySelector("#message");
+
+
+// ==============================
+// Verificar autenticação
+// ==============================
+
+async function loadUser() {
+
+    try {
+
+        const data =
+            await apiRequest("/api/auth/me");
+
+        welcome.textContent =
+            `Olá, ${data.user.name}!`;
+
+    } catch (error) {
+
+        window.location.href =
+            "/login.html";
+    }
+}
+
+
+// ==============================
+// Carregar projetos
+// ==============================
+
+async function loadProjects() {
+
+    try {
+
+        const data =
+            await apiRequest("/api/projects");
+
+        if (data.projects.length === 0) {
+
+            container.innerHTML = `
+                <div class="empty-state">
+                    Ainda não tens projetos.
+                </div>
+            `;
+
+            return;
+        }
+
+        container.innerHTML =
+            data.projects.map(project => `
+
+                <article class="project-card">
+
+                    <div class="project-card-content">
+
+                        <h3>
+                            ${project.title}
+                        </h3>
+
+                        <p>
+                            ${project.description}
+                        </p>
+
+                        <a
+                            href="/dashboard/project.html?id=${project.id}"
+                            class="btn">
+                            Ver
+                        </a>
+
+                        <button
+                            type="button"
+                            class="btn btn-edit"
+                            data-id="${project.id}">
+                            Editar
+                        </button>
+
+                        <button
+                            type="button"
+                            class="btn btn-delete"
+                            data-id="${project.id}">
+                            Apagar
+                        </button>
+                    </div>
+                </article>
+            `).join("");
+        } catch (error) {
+
+            container.innerHTML = `
+                <div class="empty-state">
+                    Erro ao carregar projetos.
+                </div>
+            `;
+        }
+}
+
+
+// ==============================
+// Criar projeto
+// ==============================
+
+form.addEventListener("submit", async (event) => {
+
+    event.preventDefault();
+
+    message.className = "message";
+
+    try {
+
+        await apiRequest("/api/projects", {
+
+            method: "POST",
+
+            body: JSON.stringify({
+
+                title:
+                    document.querySelector("#title").value,
+
+                description:
+                    document.querySelector("#description").value,
+
+                long_description:
+                    document.querySelector("#long_description").value,
+
+                github_url:
+                    document.querySelector("#github_url").value,
+
+                live_url:
+                    document.querySelector("#live_url").value,
+
+                level:
+                    document.querySelector("#level").value
+
+            })
+
+        });
+
+        message.textContent =
+            "Projeto criado com sucesso.";
+
+        message.classList.add("success");
+
+        form.reset();
+
+        loadProjects();
+
+    } catch (error) {
+
+        message.textContent =
+            error.message;
+
+        message.classList.add("error");
+    }
+
+});
+
+
+// ==============================
+// Apagar projeto
+// ==============================
+
+document.addEventListener("click", async (event) => {
+
+    if (!event.target.classList.contains("btn-delete")) {
+        return;
+    }
+
+    const id =
+        event.target.dataset.id;
+
+    const confirmar =
+        confirm("Tens a certeza que queres apagar este projeto?");
+
+    if (!confirmar) {
+        return;
+    }
+
+    try {
+
+        await apiRequest(`/api/projects/${id}`, {
+            method: "DELETE"
+        });
+
+
+        alert("Projeto apagado com sucesso.");
+
+        loadProjects();
+
+    } catch (error) {
+
+        alert(error.message);
+
+    }
+
+});
+
+// ==============================
+// Editar projeto
+// ==============================
+
+document.addEventListener("click", (event) => {
+
+    if (!event.target.classList.contains("btn-edit")) {
+        return;
+    }
+
+    const id =
+        event.target.dataset.id;
+
+    window.location.href =
+        `/dashboard/project.html?id=${encodeURIComponent(id)}&edit=true`;
+
+});
+
+
+
+// ==============================
+// Logout
+// ==============================
+
+document
+    .querySelector("#logout")
+    .addEventListener("click", async () => {
+
+        try {
+
+            await apiRequest(
+                "/api/auth/logout",
+
+                {
+                    method: "POST"
+                }
+            );
+
+            window.location.href =
+                "/login.html";
+
+        } catch (error) {
+
+            alert(error.message);
+        }
+
+    });
+
+
+loadUser();
+loadProjects();
+
+</script>
+
+</body>
+</html>

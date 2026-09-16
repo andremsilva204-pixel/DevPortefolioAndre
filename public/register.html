@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>Registo | DevPortefolio</title>
+
+    <link rel="stylesheet" href="/css/variables.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/responsive.css">
+
+
+</head>
+
+<body>
+
+<header>
+    <nav class="navbar container">
+
+        <a href="/" class="logo">
+            DevPortefolio
+        </a>
+
+    </nav>
+</header>
+
+
+<main>
+
+<div class="container">
+
+    <form
+        id="register-form"
+        class="form-container">
+
+        <h1>Registo</h1>
+
+        <br>
+
+
+        <!-- NOME -->
+
+        <div class="form-group">
+
+            <label for="name">
+                Nome
+            </label>
+
+            <input
+                type="text"
+                id="name"
+                name="name"
+                placeholder="O teu nome"
+                required>
+
+        </div>
+
+
+        <!-- EMAIL -->
+
+        <div class="form-group">
+
+            <label for="email">
+                Email
+            </label>
+
+            <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="exemplo@email.com"
+                required>
+
+        </div>
+
+
+        <!-- PASSWORD -->
+
+        <div class="form-group">
+
+            <label for="password">
+                Password
+            </label>
+
+            <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Mínimo 8 caracteres"
+                minlength="8"
+                required>
+
+        </div>
+
+
+        <!-- ROLE -->
+
+        <div class="form-group">
+
+            <label for="role">
+                Tipo de utilizador
+            </label>
+
+            <select
+                id="role"
+                name="role"
+                required>
+
+                <option value="">
+                    Seleciona uma opção
+                </option>
+
+                <option value="student">
+                    Student
+                </option>
+
+                <option value="teacher">
+                    Teacher
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <!-- BOTÃO -->
+
+        <button
+            type="submit"
+            class="btn"
+            id="register-button">
+
+            Criar conta
+
+        </button>
+
+
+        <!-- MENSAGEM -->
+
+        <div
+            id="message"
+            class="message">
+        </div>
+
+
+        <br>
+
+
+        <p>
+
+            Já tens conta?
+
+            <a href="/login.html">
+                Fazer login
+            </a>
+
+        </p>
+
+    </form>
+
+</div>
+
+</main>
+
+
+<script type="module">
+
+import { apiRequest } from "/js/api.js";
+
+
+const form =
+    document.querySelector("#register-form");
+
+const message =
+    document.querySelector("#message");
+
+const button =
+    document.querySelector("#register-button");
+
+
+form.addEventListener(
+    "submit",
+    async (event) => {
+
+        event.preventDefault();
+
+
+        // Limpar mensagem anterior
+
+        message.textContent = "";
+        message.className = "message";
+
+
+        // Obter valores
+
+        const name =
+            document
+                .querySelector("#name")
+                .value
+                .trim();
+
+
+        const email =
+            document
+                .querySelector("#email")
+                .value
+                .trim();
+
+
+        const password =
+            document
+                .querySelector("#password")
+                .value;
+
+
+        const role =
+            document
+                .querySelector("#role")
+                .value;
+
+
+        // Validação do nome
+
+        if (!name) {
+
+            message.textContent =
+                "Introduz o teu nome.";
+
+            message.classList.add("error");
+
+            return;
+        }
+
+
+        // Validação da password
+
+        if (password.length < 8) {
+
+            message.textContent =
+                "A password deve ter pelo menos 8 caracteres.";
+
+            message.classList.add("error");
+
+            return;
+        }
+
+
+        // Validação da role
+
+        if (
+            role !== "student" &&
+            role !== "teacher"
+        ) {
+
+            message.textContent =
+                "Seleciona Student ou Teacher.";
+
+            message.classList.add("error");
+
+            return;
+        }
+
+
+        // Desativar botão
+
+        button.disabled = true;
+
+        button.textContent =
+            "A criar conta...";
+
+
+        try {
+
+            const data =
+                await apiRequest(
+                    "/api/auth/register",
+                    {
+                        method: "POST",
+
+                        body: JSON.stringify({
+
+                            name: name,
+
+                            email: email,
+
+                            password: password,
+
+                            role: role
+
+                        })
+                    }
+                );
+
+
+            // Sucesso
+
+            message.textContent =
+                data.message ||
+                "Conta criada com sucesso.";
+
+            message.classList.add(
+                "success"
+            );
+
+
+            console.log(
+                "Utilizador criado:",
+                data.user
+            );
+
+
+            form.reset();
+
+
+            // Depois de criar a conta,
+            // enviar para o login
+
+            setTimeout(() => {
+
+                window.location.href =
+                    "/login.html";
+
+            }, 1000);
+
+
+        } catch (error) {
+
+            message.textContent =
+                error.message ||
+                "Ocorreu um erro ao criar a conta.";
+
+            message.classList.add(
+                "error"
+            );
+
+
+        } finally {
+
+            button.disabled = false;
+
+            button.textContent =
+                "Criar conta";
+
+        }
+
+    }
+);
+
+</script>
+
+
+</body>
+
+</html>
