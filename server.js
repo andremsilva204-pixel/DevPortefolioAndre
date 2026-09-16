@@ -181,13 +181,13 @@ app.get(
 // SERVIDOR
 // ======================================================
 
-app.listen(
-    PORT,
-    () => {
-
+if (require.main === module) {
+    app.listen(PORT, () => {
         console.log(
             `Servidor iniciado em http://localhost:${PORT}`
         );
+    });
+}
 
-    }
-);
+module.exports = app;
+
