@@ -209,6 +209,15 @@ form.addEventListener(
                 );
 
 
+            if (data.token) {
+                localStorage.setItem("token", data.token);
+            }
+
+            if (data.user) {
+                localStorage.setItem("user", JSON.stringify(data.user));
+            }
+
+
             message.textContent =
                 data.message;
 
