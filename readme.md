@@ -3,15 +3,6 @@
 Aplicação web desenvolvida para gestão e exposição pública de projetos de desenvolvimento de software, com suporte para utilizadores autenticados e persistência de dados na nuvem.
 
 
-
-## 🔑 Credenciais da Área de Administração Protegida
-
-Para aceder à área de administração como formador, utilize as seguintes credenciais:
-
-* **Email:** `fortiago@gmail.com`
-* **Password:** `123456`
-
-
 ## 🛠️ Tecnologias Utilizadas
 
 * **Backend:** Node.js, Express.js
@@ -31,4 +22,4 @@ Para aceder à área de administração como formador, utilize as seguintes cred
 
 ## 🌐 Deploy / Link Público
 
-* **URL de Produção:** `https://devfolio-preguica.netlify.app/public`
+* **URL de Produção:** `https://jugg33damanha.netlify.app/`
